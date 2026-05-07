@@ -1,0 +1,24 @@
+meta {
+  name: Top Rated Restaurants
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/reports/top-rated
+  body: none
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:8080
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

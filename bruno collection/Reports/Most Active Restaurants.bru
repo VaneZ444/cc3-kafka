@@ -1,0 +1,24 @@
+meta {
+  name: Most Active Restaurants
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/reports/most-active
+  body: none
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:8080
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,33 @@
+meta {
+  name: Create Review
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/reviews
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "restaurantName": "Уютное кафе",
+    "restaurantAddress": "ул. Пушкина, 1",
+    "rating": 5,
+    "comment": "Очень вкусно и быстро!"
+  }
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:8080
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
