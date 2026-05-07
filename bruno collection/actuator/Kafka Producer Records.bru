@@ -1,0 +1,15 @@
+meta {
+  name: Kafka Producer Records
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/actuator/metrics/spring.kafka.template?tag=result:success
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:8081
+}

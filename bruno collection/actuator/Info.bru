@@ -1,0 +1,24 @@
+meta {
+  name: Info
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/actuator/info
+  body: none
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:8081
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

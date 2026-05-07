@@ -1,0 +1,15 @@
+meta {
+  name: JVM Memory Used
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/actuator/metrics/jvm.memory.used
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:8081
+}
