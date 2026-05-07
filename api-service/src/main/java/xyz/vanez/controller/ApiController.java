@@ -1,5 +1,6 @@
 package xyz.vanez.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ public class ApiController {
     private final DataServiceClient dataClient;
 
     @PostMapping("/reviews")
-    public ResponseEntity<String> addReview(@RequestBody ReviewRequest request) {
+    public ResponseEntity<String> addReview(@Valid @RequestBody ReviewRequest request) {
         log.info("POST /api/reviews: {}", request);
         kafkaProducer.sendReview(request);
         return ResponseEntity.accepted().body("Review sent to Kafka");
