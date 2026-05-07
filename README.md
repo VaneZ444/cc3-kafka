@@ -15,7 +15,10 @@
 2. Количество отзывов по дням (за последние 30 дней).
 3. Топ‑10 ресторанов по количеству отзывов.
 
-Все компоненты запускаются в отдельных Docker-контейнерах, объединённых в общую сеть, управление производится через `docker-compose.yml`.
+Все компоненты запускаются в отдельных Docker-контейнерах. Внутренние сервисы (Kafka, PostgreSQL, Data Service) находятся в изолированной сети `backend` без доступа с хоста. API Service подключён к этой сети и к сети `frontend`, через которую принимает запросы снаружи.
+## Схема архитектуры
+
+![Архитектура системы](Diagram.png)
 
 ## Технологический стек
 
@@ -73,18 +76,7 @@ cc3-kafka/
 │       │       ├── ReviewConsumerService.java
 │       │       └── ReviewService.java
 │       └── resources/application.yml
-├── bruno-collection/
-│   ├── bruno.json
-│   ├── Actuator/
-│   │   ├── Health Check.bru
-│   │   ├── Info.bru
-│   │   ├── Metrics.bru
-│   │   ├── HTTP Requests Count.bru
-│   │   ├── JVM Memory Used.bru
-│   │   └── Kafka Producer Records.bru
-│   ├── Reports/
-│   ├── Rewiews/
-│   └── Search/
+├── bruno-collection/*.bru
 ├── .env
 ├── .gitignore
 ├── Diagram.png
@@ -102,37 +94,31 @@ cc3-kafka/
 
 2. **Создайте файл `.env`** в корне проекта (пример):  
    ```ini
-   # Версии образов
    ZOOKEEPER_VERSION=7.4.0
    KAFKA_VERSION=7.4.0
    POSTGRES_VERSION=15-alpine
 
-   # PostgreSQL
    POSTGRES_DB=restaurantdb
    POSTGRES_USER=user
    POSTGRES_PASSWORD=your_strong_password
-   POSTGRES_PORT_HOST=5432
 
-   # Kafka
-   KAFKA_PORT_HOST=9092
    KAFKA_BROKER_ID=1
    KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
    KAFKA_ADVERTISED_HOST=kafka
    KAFKA_ADVERTISED_PORT=9092
 
-   # API Service
    API_SERVICE_PORT_HOST=8080
    API_SERVICE_PORT_CONTAINER=8080
    SPRING_PROFILES_ACTIVE=docker
    DATA_SERVICE_URL=http://data-service:8081
 
-   # Data Service (порт только внутри сети)
    DATA_SERVICE_PORT_CONTAINER=8081
 
-   # Общие настройки
    KAFKA_BOOTSTRAP_SERVERS=kafka:9092
    DB_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB}
    ```
+
+   > ⚠️ Обратите внимание: порты PostgreSQL, Kafka, Zookeeper **не пробрасываются** на хост. Все внутренние сервисы изолированы.
 
 3. **Запустите контейнеры**  
    ```bash
@@ -254,8 +240,9 @@ curl http://localhost:8080/actuator/metrics/http.server.requests?tag=uri:/api/re
 
 ## Ключевые особенности реализации (Docker)
 
-- ✅ **Docker-сеть** – все сервисы общаются по именам контейнеров.
-- ✅ **Наружу открыт только порт 8080** (API Service). Data Service **не имеет внешнего порта**.
+- ✅ **Две сети** – `backend` (internal) для внутренних сервисов (Kafka, PostgreSQL, Data Service) и `frontend` для API Service.  
+
+- ✅ **Наружу открыт только порт 8080** (API Service). Все остальные компоненты недоступны с хоста.
 - ✅ **Volume** – `postgres_data` для сохранения данных PostgreSQL.
 - ✅ **Все пароли и настройки в `.env`** (файл в `.gitignore`).
 - ✅ **Многоступенчатая сборка** – Maven → JRE (лёгкий образ).
@@ -294,11 +281,7 @@ bruno-collection/
 4. Запустите `docker-compose up`.
 5. Выполняйте запросы (сначала добавьте несколько отзывов, затем тестируйте поиск, отчёты и Actuator).
 
-## Схема архитектуры
-
-![Архитектура системы](Diagram.png)
-
 ---
 
 **Проект выполнен в рамках практической работы по Kafka и микросервисам.**  
-Все современные подходы (контейнеризация, асинхронное взаимодействие, валидация, мониторинг) применены.
+Все современные подходы (контейнеризация, асинхронное взаимодействие, валидация, безопасность, мониторинг) применены.
