@@ -9,10 +9,13 @@ data-service:
   url: ${DATA_SERVICE_URL:http://localhost:8081}
 
 management:
-endpoints:
-  web:
-    exposure:
-      include: health,info,metrics
-endpoint:
-  health:
-    show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
