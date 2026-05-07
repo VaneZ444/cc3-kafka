@@ -16,3 +16,12 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
         spring.json.type.mapping: reviewRequest:xyz.vanez.dto.ReviewRequest
+        
+management:
+endpoints:
+  web:
+    exposure:
+      include: health,info
+endpoint:
+  health:
+    show-details: always
