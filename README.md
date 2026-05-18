@@ -43,7 +43,9 @@ cc3-kafka/
 │       ├── java/xyz/vanez/
 │       │   ├── ApiApplication.java
 │       │   ├── controller/ApiController.java
-│       │   ├── dto/ReviewRequest.java
+│       │   ├── dto/
+│       │   │   ├── ReviewRequest.java      # внешний DTO (без messageId)
+│       │   │   └── ReviewMessage.java      # сообщение для Kafka (с messageId)
 │       │   ├── error/
 │       │   │   ├── GlobalExceptionHandler.java
 │       │   │   └── dto/ErrorResponse.java
@@ -57,10 +59,12 @@ cc3-kafka/
 │   └── src/main/
 │       ├── java/xyz/vanez/
 │       │   ├── DataApplication.java
+│       │   ├── config/
+│       │   │   └── KafkaConfig.java
 │       │   ├── controller/DataController.java
 │       │   ├── dto/
 │       │   │   ├── MostActiveRestaurantDto.java
-│       │   │   ├── ReviewRequest.java
+│       │   │   ├── ReviewMessage.java
 │       │   │   ├── ReviewsByDayDto.java
 │       │   │   └── TopRatedRestaurantDto.java
 │       │   ├── error/
@@ -250,6 +254,7 @@ curl http://localhost:8080/actuator/metrics/http.server.requests?tag=uri:/api/re
 - ✅ **Healthcheck для PostgreSQL** – Data Service стартует только после готовности БД.
 - ✅ **SERVER_PORT** явно передан в data-service, чтобы избежать конфликта портов.
 - ✅ **Партиционирование по `restaurantName`** – все отзывы об одном ресторане попадают в одну партицию, гарантируется порядок обработки и возможность горизонтального масштабирования потребителей.
+- ✅ **Идемпотентность потребителя** – API Service генерирует уникальный `messageId` (UUID), который сохраняется в БД с уникальным индексом. При повторной доставке сообщения дубль отбрасывается, что защищает от дублирования отзывов.
 - ✅ **Dead Letter Queue (DLQ)** – при ошибке обработки сообщение отправляется в топик `dead-letter-reviews` (повторные попытки отключены, офсет подтверждается после отправки в DLQ).
 - ✅ **Graceful shutdown** – при остановке контейнера Spring Boot ожидает до 30 секунд завершения обработки текущих сообщений.
 - ✅ **Ручное подтверждение офсетов** – `enable.auto.commit=false` + ручной `ack.acknowledge()` после успешного сохранения в БД.
@@ -290,5 +295,4 @@ bruno-collection/
 ---
 
 **Проект выполнен в рамках практической работы по Kafka и микросервисам.**  
-Все современные подходы (контейнеризация, асинхронное взаимодействие, валидация, безопасность, мониторинг, DLQ, graceful shutdown) применены.
-```
+Все современные подходы (контейнеризация, асинхронное взаимодействие, валидация, безопасность, мониторинг, идемпотентность, DLQ, graceful shutdown) применены.
