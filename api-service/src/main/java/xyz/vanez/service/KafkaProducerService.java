@@ -15,8 +15,18 @@ public class KafkaProducerService {
     private static final String TOPIC = "reviews";
 
     public void sendReview(ReviewRequest review) {
-        log.info("Sending review to Kafka: {}", review);
-        kafkaTemplate.send(TOPIC, review);
-        log.debug("Sent review with topic: {}", TOPIC);
+        String key = review.getRestaurantName();
+        log.info("sending: key='{}', value={}", key, review);
+        kafkaTemplate.send(TOPIC, key, review)
+                .whenComplete((result, ex) -> {
+                    if (ex == null) {
+                        log.info("sent: key='{}', partition={}, offset={}",
+                                key,
+                                result.getRecordMetadata().partition(),
+                                result.getRecordMetadata().offset());
+                    } else {
+                        log.error("failed: key='{}', error={}", key, ex.getMessage(), ex);
+                    }
+                });
     }
 }
