@@ -15,4 +15,11 @@ public class KafkaConfig {
                 .replicas(1)
                 .build();
     }
+    @Bean
+    public NewTopic reviewsTopic() {
+        return TopicBuilder.name("reviews")
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
 }
