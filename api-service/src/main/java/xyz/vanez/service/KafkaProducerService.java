@@ -12,7 +12,7 @@ import xyz.vanez.dto.ReviewRequest;
 @RequiredArgsConstructor
 public class KafkaProducerService {
 
-    private final KafkaTemplate<String, ReviewRequest> kafkaTemplate;
+    private final KafkaTemplate<String, ReviewMessage> kafkaTemplate;
     private static final String TOPIC = "reviews";
 
     public void sendReview(ReviewRequest request, String messageId) {

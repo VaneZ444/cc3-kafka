@@ -18,7 +18,7 @@ import xyz.vanez.dto.ReviewRequest;
 public class ReviewConsumerService {
 
     private final ReviewService reviewService;
-    private final KafkaTemplate<String, ReviewRequest> kafkaTemplate;
+    private final KafkaTemplate<String, ReviewMessage> kafkaTemplate;
     private static final String DLQ_TOPIC = "dead-letter-reviews";
 
     @KafkaListener(topics = "reviews", groupId = "data-service-group")
