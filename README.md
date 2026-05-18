@@ -72,9 +72,11 @@ cc3-kafka/
 │       │   ├── repository/
 │       │   │   ├── RestaurantRepository.java
 │       │   │   └── ReviewRepository.java
-│       │   └── service/
-│       │       ├── ReviewConsumerService.java
-│       │       └── ReviewService.java
+│       │   ├── service/
+│       │   │   ├── ReviewConsumerService.java
+│       │   │   └── ReviewService.java
+│       │   └── config/
+│       │       └── KafkaConfig.java
 │       └── resources/application.yml
 ├── bruno-collection/*.bru
 ├── .env
@@ -241,13 +243,17 @@ curl http://localhost:8080/actuator/metrics/http.server.requests?tag=uri:/api/re
 ## Ключевые особенности реализации (Docker)
 
 - ✅ **Две сети** – `backend` (internal) для внутренних сервисов (Kafka, PostgreSQL, Data Service) и `frontend` для API Service.  
-
 - ✅ **Наружу открыт только порт 8080** (API Service). Все остальные компоненты недоступны с хоста.
 - ✅ **Volume** – `postgres_data` для сохранения данных PostgreSQL.
 - ✅ **Все пароли и настройки в `.env`** (файл в `.gitignore`).
 - ✅ **Многоступенчатая сборка** – Maven → JRE (лёгкий образ).
 - ✅ **Healthcheck для PostgreSQL** – Data Service стартует только после готовности БД.
 - ✅ **SERVER_PORT** явно передан в data-service, чтобы избежать конфликта портов.
+- ✅ **Партиционирование по `restaurantName`** – все отзывы об одном ресторане попадают в одну партицию, гарантируется порядок обработки и возможность горизонтального масштабирования потребителей.
+- ✅ **Dead Letter Queue (DLQ)** – при ошибке обработки сообщение отправляется в топик `dead-letter-reviews` (повторные попытки отключены, офсет подтверждается после отправки в DLQ).
+- ✅ **Graceful shutdown** – при остановке контейнера Spring Boot ожидает до 30 секунд завершения обработки текущих сообщений.
+- ✅ **Ручное подтверждение офсетов** – `enable.auto.commit=false` + ручной `ack.acknowledge()` после успешного сохранения в БД.
+- ✅ **Отключён `spring.jpa.open-in-view`** – предотвращает удержание соединений с БД.
 
 ## Коллекция запросов для Bruno
 
@@ -284,4 +290,5 @@ bruno-collection/
 ---
 
 **Проект выполнен в рамках практической работы по Kafka и микросервисам.**  
-Все современные подходы (контейнеризация, асинхронное взаимодействие, валидация, безопасность, мониторинг) применены.
+Все современные подходы (контейнеризация, асинхронное взаимодействие, валидация, безопасность, мониторинг, DLQ, graceful shutdown) применены.
+```
