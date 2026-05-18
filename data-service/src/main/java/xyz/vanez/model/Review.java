@@ -23,8 +23,9 @@ public class Review {
     private Restaurant restaurant;
 
     private Integer rating;
-
     private String comment;
-
     private LocalDateTime createdAt;
+
+    @Column(unique = true, nullable = false)
+    private String messageId;
 }

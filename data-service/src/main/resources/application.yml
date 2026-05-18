@@ -19,8 +19,8 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       enable-auto-commit: false
       properties:
-        spring.json.trusted.packages: "*"
-        spring.json.type.mapping: reviewRequest:xyz.vanez.dto.ReviewRequest
+        spring.json.trusted.packages: "xyz.vanez.dto.*"
+        spring.json.type.mapping: reviewMessage:xyz.vanez.dto.ReviewMessage
     listener:
       ack-mode: manual_immediate
       max-attempts: 3

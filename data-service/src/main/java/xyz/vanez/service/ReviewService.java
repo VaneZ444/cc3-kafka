@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import xyz.vanez.dto.MostActiveRestaurantDto;
-import xyz.vanez.dto.ReviewRequest;
-import xyz.vanez.dto.ReviewsByDayDto;
-import xyz.vanez.dto.TopRatedRestaurantDto;
+import xyz.vanez.dto.*;
 import xyz.vanez.model.Restaurant;
 import xyz.vanez.model.Review;
 import xyz.vanez.repository.RestaurantRepository;
@@ -27,23 +24,29 @@ public class ReviewService {
     private final RestaurantRepository restaurantRepository;
     private final ReviewRepository reviewRepository;
 
-    public void saveReview(ReviewRequest req) {
-        log.debug("Saving Review: {}", req);
-        Restaurant restaurant = restaurantRepository.findByName(req.getRestaurantName())
+    public void saveReview(ReviewMessage msg) {
+        if (reviewRepository.existsByMessageId(msg.getMessageId())) {
+            log.warn("Duplicate messageId: {}, skipping", msg.getMessageId());
+            return;
+        }
+
+        Restaurant restaurant = restaurantRepository.findByName(msg.getRestaurantName())
                 .orElseGet(() -> {
-                    log.info("Created new restaurant: {}", req.getRestaurantName());
+                    log.info("Created new restaurant: {}", msg.getRestaurantName());
                     Restaurant r = new Restaurant();
-                    r.setName(req.getRestaurantName());
-                    r.setAddress(req.getRestaurantAddress());
+                    r.setName(msg.getRestaurantName());
+                    r.setAddress(msg.getRestaurantAddress());
                     return restaurantRepository.save(r);
                 });
+
         Review review = new Review();
         review.setRestaurant(restaurant);
-        review.setRating(req.getRating());
-        review.setComment(req.getComment());
+        review.setRating(msg.getRating());
+        review.setComment(msg.getComment());
         review.setCreatedAt(LocalDateTime.now());
+        review.setMessageId(msg.getMessageId());
         reviewRepository.save(review);
-        log.info("Review saved: restaurant '{}', rating {}", restaurant.getName(), req.getRating());
+        log.info("Review saved: restaurant '{}', rating {}", restaurant.getName(), msg.getRating());
     }
 
     public List<Review> searchReviews(String text) {

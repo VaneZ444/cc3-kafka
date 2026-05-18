@@ -9,6 +9,7 @@ import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+import xyz.vanez.dto.ReviewMessage;
 import xyz.vanez.dto.ReviewRequest;
 
 @Slf4j
@@ -21,14 +22,14 @@ public class ReviewConsumerService {
     private static final String DLQ_TOPIC = "dead-letter-reviews";
 
     @KafkaListener(topics = "reviews", groupId = "data-service-group")
-    public void consume(ReviewRequest request, Acknowledgment ack) {
-        log.info("Got Kafka message: {}", request);
+    public void consume(ReviewMessage message, Acknowledgment ack) {
+        log.info("Got Kafka message: {}", message);
         try {
-            reviewService.saveReview(request);
+            reviewService.saveReview(message);
             ack.acknowledge();
         } catch (Exception e) {
             log.error("Error processing message, sending to DLQ", e);
-            kafkaTemplate.send(DLQ_TOPIC, request.getRestaurantName(), request);
+            kafkaTemplate.send(DLQ_TOPIC, message.getRestaurantName(), message);
             ack.acknowledge();
         }
     }

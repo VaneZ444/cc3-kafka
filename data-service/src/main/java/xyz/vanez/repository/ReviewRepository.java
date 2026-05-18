@@ -11,6 +11,7 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByCommentContainingIgnoreCase(String text);
+    boolean existsByMessageId(String messageId);
 
     @Query("SELECT new xyz.vanez.dto.TopRatedRestaurantDto(r.restaurant.name, AVG(r.rating), COUNT(r)) " +
             "FROM Review r GROUP BY r.restaurant ORDER BY AVG(r.rating) DESC")
@@ -24,4 +25,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT new xyz.vanez.dto.MostActiveRestaurantDto(r.restaurant.name, COUNT(r)) " +
             "FROM Review r GROUP BY r.restaurant ORDER BY COUNT(r) DESC")
     List<MostActiveRestaurantDto> findMostActiveRestaurants(Pageable pageable);
+
 }

@@ -11,6 +11,7 @@ import xyz.vanez.service.DataServiceClient;
 import xyz.vanez.service.KafkaProducerService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -23,8 +24,9 @@ public class ApiController {
 
     @PostMapping("/reviews")
     public ResponseEntity<String> addReview(@Valid @RequestBody ReviewRequest request) {
+        String messageId = UUID.randomUUID().toString();
         log.info("POST /api/reviews: {}", request);
-        kafkaProducer.sendReview(request);
+        kafkaProducer.sendReview(request, messageId);
         return ResponseEntity.accepted().body("Review sent to Kafka");
     }
 
