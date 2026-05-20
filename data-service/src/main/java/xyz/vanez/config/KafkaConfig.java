@@ -9,15 +9,24 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaConfig {
 
     @Bean
-    public NewTopic deadLetterTopic() {
-        return TopicBuilder.name("dead-letter-reviews")
-                .partitions(1)
+    public NewTopic reviewsTopic() {
+        return TopicBuilder.name("reviews")
+                .partitions(3)
                 .replicas(1)
                 .build();
     }
+
     @Bean
-    public NewTopic reviewsTopic() {
-        return TopicBuilder.name("reviews")
+    public NewTopic retryTopic() {
+        return TopicBuilder.name("reviews-retry")
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic deadLetterTopic() {
+        return TopicBuilder.name("reviews-dlt")
                 .partitions(3)
                 .replicas(1)
                 .build();

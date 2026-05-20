@@ -23,7 +23,6 @@ spring:
         spring.json.type.mapping: reviewMessage:xyz.vanez.dto.ReviewMessage
     listener:
       ack-mode: manual_immediate
-      max-attempts: 3
       concurrency: 3       
   lifecycle:
     timeout-per-shutdown-phase: 30s

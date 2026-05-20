@@ -10,6 +10,8 @@ import xyz.vanez.model.Restaurant;
 import xyz.vanez.model.Review;
 import xyz.vanez.repository.RestaurantRepository;
 import xyz.vanez.repository.ReviewRepository;
+
+import java.net.SocketTimeoutException;
 import java.time.LocalDateTime;
 import java.sql.Date;
 import java.util.List;
@@ -24,12 +26,17 @@ public class ReviewService {
     private final RestaurantRepository restaurantRepository;
     private final ReviewRepository reviewRepository;
 
-    public void saveReview(ReviewMessage msg) {
+    public void saveReview(ReviewMessage msg) throws SocketTimeoutException {
         if (reviewRepository.existsByMessageId(msg.getMessageId())) {
             log.warn("Duplicate messageId: {}, skipping", msg.getMessageId());
             return;
         }
-
+        if (msg.getComment() != null && msg.getComment().contains("ERROR_TEST")) {
+            throw new RuntimeException("Simulated error for DLQ test");
+        }
+        if (msg.getComment() != null && msg.getComment().contains("TIMEOUT_TEST")) {
+            throw new org.springframework.dao.DataAccessException("Simulated DataAccessException") {};
+        }
         Restaurant restaurant = restaurantRepository.findByName(msg.getRestaurantName())
                 .orElseGet(() -> {
                     log.info("Created new restaurant: {}", msg.getRestaurantName());
