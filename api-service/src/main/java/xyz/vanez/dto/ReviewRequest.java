@@ -24,4 +24,6 @@ public class ReviewRequest {
     @NotBlank(message = "Комментарий не может быть пустым")
     @Size(max = 1000, message = "Комментарий не длиннее 1000 символов")
     private String comment;
+
+    private String messageId;
 }

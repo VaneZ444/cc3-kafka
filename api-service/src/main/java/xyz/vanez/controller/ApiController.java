@@ -24,8 +24,14 @@ public class ApiController {
 
     @PostMapping("/reviews")
     public ResponseEntity<String> addReview(@Valid @RequestBody ReviewRequest request) {
-        String messageId = UUID.randomUUID().toString();
-        log.info("POST /api/reviews: {}", request);
+        String messageId = request.getMessageId();
+        if (messageId == null || messageId.isBlank()) {
+            messageId = UUID.randomUUID().toString();
+            log.debug("Generated messageId: {}", messageId);
+        } else {
+            log.debug("Using provided messageId: {}", messageId);
+        }
+        log.info("POST /api/reviews - received: {}", request);
         kafkaProducer.sendReview(request, messageId);
         return ResponseEntity.accepted().body("Review sent to Kafka");
     }

@@ -35,7 +35,7 @@ public class ReviewConsumerService {
         log.info("Got Kafka message: {}", message);
         try {
             reviewService.saveReview(message);
-            ack.acknowledge();
+            //ack.acknowledge();
         } catch (Exception e) {
             log.error("Error processing message", e);
             throw new RuntimeException(e);
